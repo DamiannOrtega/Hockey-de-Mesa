@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">Air Hockey</string>
+    
+    <!-- Menú Principal -->
+    <string name="titulo_juego">HOCKEY DE MESA</string>
+    <string name="btn_un_jugador">Un Jugador</string>
+    <string name="btn_multijugador">Multijugador</string>
+    <string name="btn_puntuaciones">Puntuaciones</string>
+    <string name="btn_salir">Salir</string>
+    
+    <!-- Juego -->
+    <string name="jugador1">Jugador 1</string>
+    <string name="jugador2">Jugador 2</string>
+    <string name="cpu">CPU</string>
+    <string name="tiempo">Tiempo: %1$d:%2$02d</string>
+    <string name="btn_iniciar">INICIAR</string>
+    <string name="btn_pausar">PAUSAR</string>
+    <string name="btn_continuar">CONTINUAR</string>
+    <string name="coloca_dedo">Coloca tu dedo cerca de la portería</string>
+    <string name="ganador">¡%1$s GANA!</string>
+    <string name="empate">¡EMPATE!</string>
+    <string name="penalizacion">¡Penalización! %1$s pierde</string>
+    <string name="ya">¡YA!</string>
+    
+    <!-- Puntuaciones -->
+    <string name="titulo_puntuaciones">MEJORES PUNTUACIONES</string>
+    <string name="ingresa_nombre">Ingresa tu nombre:</string>
+    <string name="guardar">Guardar</string>
+    <string name="cancelar">Cancelar</string>
+    <string name="sin_puntuaciones">No hay puntuaciones guardadas</string>
+    <string name="formato_puntuacion">%1$s - %2$d pts - %3$s</string>
+    
+    <!-- Configuración -->
+    <string name="duracion_juego">Duración: 3 minutos</string>
+</resources>

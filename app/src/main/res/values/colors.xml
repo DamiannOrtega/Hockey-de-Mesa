@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Colores principales del juego -->
+    <color name="azulPrimario">#1E88E5</color>
+    <color name="azulOscuro">#0D47A1</color>
+    <color name="azulClaro">#64B5F6</color>
+    
+    <color name="rojoJugador1">#E53935</color>
+    <color name="azulJugador2">#1E88E5</color>
+    
+    <color name="fondoCancha">#0A2647</color>
+    <color name="lineaCancha">#FFFFFF</color>
+    <color name="disco">#FFEB3B</color>
+    
+    <color name="fondoDegradado1">#1A237E</color>
+    <color name="fondoDegradado2">#0D47A1</color>
+    
+    <color name="textoBlanco">#FFFFFF</color>
+    <color name="textoGris">#B0BEC5</color>
+    
+    <color name="botonPresionado">#1565C0</color>
+</resources>

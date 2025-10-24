@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/fondo_gradiente"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/txtResultado"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="¡JUGADOR 1 GANA!"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        android:textColor="@color/textoBlanco"
+        android:fontFamily="sans-serif-black"
+        android:gravity="center"
+        android:layout_marginBottom="24dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PUNTUACIÓN FINAL"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/textoGris"
+        android:layout_marginBottom="8dp" />
+
+    <TextView
+        android:id="@+id/txtPuntosFinales"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Jugador 1: 5\nJugador 2: 3"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:textColor="@color/textoBlanco"
+        android:fontFamily="sans-serif-black"
+        android:gravity="center"
+        android:lineSpacingExtra="8dp"
+        android:layout_marginBottom="32dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnJugarDeNuevo"
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:text="🔄 JUGAR DE NUEVO"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="30dp"
+        app:backgroundTint="@color/azulPrimario"
+        android:layout_marginBottom="12dp"
+        android:elevation="8dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnMenuPrincipal"
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:text="🏠 MENÚ PRINCIPAL"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:cornerRadius="30dp"
+        app:backgroundTint="@color/textoGris"
+        android:elevation="8dp" />
+
+</LinearLayout>
+

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/fondo_gradiente"
+    android:padding="32dp">
+
+    <!-- Logo del juego -->
+    <ImageView
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:src="@drawable/logo"
+        android:contentDescription="Logo Air Hockey"
+        android:layout_marginBottom="24dp"
+        android:scaleType="fitCenter" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="64dp"
+        android:fontFamily="sans-serif-black"
+        android:letterSpacing="0.1"
+        android:text="@string/titulo_juego"
+        android:textColor="@color/textoBlanco"
+        android:textSize="48sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textAlignment="center" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnUnJugador"
+        android:layout_width="280dp"
+        android:layout_height="64dp"
+        android:text="@string/btn_un_jugador"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cornerRadius="32dp"
+        app:backgroundTint="@color/azulPrimario"
+        android:layout_marginBottom="16dp"
+        app:icon="@android:drawable/ic_menu_view"
+        app:iconGravity="textStart"
+        android:elevation="8dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnMultijugador"
+        android:layout_width="280dp"
+        android:layout_height="64dp"
+        android:text="@string/btn_multijugador"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cornerRadius="32dp"
+        app:backgroundTint="@color/azulPrimario"
+        android:layout_marginBottom="32dp"
+        app:icon="@android:drawable/ic_menu_sort_by_size"
+        app:iconGravity="textStart"
+        android:elevation="8dp"/>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSalir"
+        android:layout_width="280dp"
+        android:layout_height="64dp"
+        android:text="@string/btn_salir"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:cornerRadius="32dp"
+        app:backgroundTint="@color/textoGris"
+        app:icon="@android:drawable/ic_menu_close_clear_cancel"
+        app:iconGravity="textStart"
+        android:elevation="8dp"/>
+
+    <!-- Footer con nombre del desarrollador -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hecho por:\nJuan Damián Ortega De Luna"
+        android:textColor="@color/textoGris"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        android:gravity="center"
+        android:layout_marginTop="32dp"
+        android:alpha="0.7" />
+
+</LinearLayout>
+

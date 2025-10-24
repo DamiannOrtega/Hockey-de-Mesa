@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/fondoCancha">
+
+    <!-- Vista del juego -->
+    <com.example.examenhockey.VistaJuego
+        android:id="@+id/vistaJuego"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- HUD Superior - Información del Jugador 2 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="16dp"
+        android:background="#80000000"
+        android:rotation="180">
+
+        <TextView
+            android:id="@+id/txtNombreJ2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/jugador2"
+            android:textColor="@color/azulJugador2"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtPuntosJ2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textColor="@color/textoBlanco"
+            android:textSize="48sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-black" />
+    </LinearLayout>
+
+    <!-- HUD Inferior - Información del Jugador 1 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:padding="16dp"
+        android:background="#80000000">
+
+        <TextView
+            android:id="@+id/txtPuntosJ1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textColor="@color/textoBlanco"
+            android:textSize="48sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-black" />
+
+        <TextView
+            android:id="@+id/txtNombreJ1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/jugador1"
+            android:textColor="@color/rojoJugador1"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Contador de inicio en el centro (3, 2, 1) -->
+    <TextView
+        android:id="@+id/txtContadorInicio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="3"
+        android:textColor="@color/textoBlanco"
+        android:textSize="120sp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-black"
+        android:shadowColor="#80000000"
+        android:shadowDx="0"
+        android:shadowDy="8"
+        android:shadowRadius="15"
+        android:visibility="gone" />
+
+    <!-- Temporizador para Jugador 2 (arriba, rotado) -->
+    <TextView
+        android:id="@+id/txtTiempoJ2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="80dp"
+        android:text="3:00"
+        android:textColor="@color/textoBlanco"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:padding="8dp"
+        android:background="#80000000"
+        android:fontFamily="sans-serif-black"
+        android:rotation="180"
+        android:visibility="gone" />
+
+    <!-- Temporizador para Jugador 1 (abajo, normal) -->
+    <TextView
+        android:id="@+id/txtTiempoJ1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="80dp"
+        android:text="3:00"
+        android:textColor="@color/textoBlanco"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:padding="8dp"
+        android:background="#80000000"
+        android:fontFamily="sans-serif-black"
+        android:visibility="gone" />
+
+    <!-- Botón de iniciar (centro) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnIniciar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/btn_iniciar"
+        android:textStyle="bold"
+        app:cornerRadius="24dp"
+        app:backgroundTint="@color/azulPrimario"
+        android:elevation="8dp" />
+
+    <!-- Botón de pausa para Jugador 2 (arriba derecha, rotado) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnPausarJ2"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"
+        app:icon="@android:drawable/ic_media_pause"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:cornerRadius="28dp"
+        app:backgroundTint="@color/azulJugador2"
+        android:elevation="8dp"
+        android:rotation="180"
+        android:visibility="gone" />
+
+    <!-- Botón de pausa para Jugador 1 (abajo derecha) -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnPausarJ1"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"
+        app:icon="@android:drawable/ic_media_pause"
+        app:iconGravity="textStart"
+        app:iconPadding="0dp"
+        app:cornerRadius="28dp"
+        app:backgroundTint="@color/rojoJugador1"
+        android:elevation="8dp"
+        android:visibility="gone" />
+
+    <!-- Mensaje de instrucciones para Jugador 2 (arriba, rotado) -->
+    <TextView
+        android:id="@+id/txtMensajeJ2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="120dp"
+        android:text="@string/coloca_dedo"
+        android:textColor="@color/azulJugador2"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:padding="12dp"
+        android:background="#CC000000"
+        android:gravity="center"
+        android:rotation="180"
+        android:visibility="gone" />
+
+    <!-- Mensaje de instrucciones para Jugador 1 (abajo, normal) -->
+    <TextView
+        android:id="@+id/txtMensajeJ1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="120dp"
+        android:text="@string/coloca_dedo"
+        android:textColor="@color/rojoJugador1"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:padding="12dp"
+        android:background="#CC000000"
+        android:gravity="center"
+        android:visibility="gone" />
+
+</RelativeLayout>
+
