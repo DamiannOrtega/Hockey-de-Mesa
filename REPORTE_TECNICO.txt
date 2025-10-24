@@ -1,0 +1,1020 @@
+================================================================================
+                    REPORTE TÉCNICO DE DESARROLLO
+           APLICACIÓN DE AIR HOCKEY PARA DISPOSITIVOS ANDROID
+================================================================================
+
+Autor: Juan Damián Ortega De Luna
+Fecha: Octubre 2025
+Plataforma: Android
+Lenguaje: Kotlin
+Herramienta de Desarrollo: Android Studio
+
+
+================================================================================
+1. INTRODUCCIÓN
+================================================================================
+
+El presente documento describe el desarrollo de una aplicación móvil de Air 
+Hockey para dispositivos Android, implementada completamente en el lenguaje 
+de programación Kotlin. La aplicación ofrece dos modalidades de juego: modo 
+un jugador contra una inteligencia artificial, y modo multijugador local en 
+el mismo dispositivo.
+
+El objetivo principal del proyecto fue crear una experiencia de juego fluida, 
+con física realista y controles intuitivos mediante gestos táctiles, 
+respetando las reglas tradicionales del Air Hockey de mesa.
+
+
+================================================================================
+2. ARQUITECTURA GENERAL DE LA APLICACIÓN
+================================================================================
+
+2.1 Estructura de Componentes
+------------------------------
+
+La aplicación se organizó siguiendo el patrón arquitectónico de Android 
+basado en Activities, con componentes personalizados para el renderizado del 
+juego. Los componentes principales son:
+
+• MenuPrincipalActivity: Pantalla inicial con opciones de juego
+• JuegoActivity: Controlador principal del flujo del juego
+• VistaJuego: Vista personalizada (Custom View) que maneja el renderizado y 
+  la física
+
+2.2 Tecnologías Utilizadas
+---------------------------
+
+• Android SDK: API Level 36
+• Kotlin: Lenguaje principal de desarrollo
+• Material Design 3: Para componentes de interfaz modernos
+• Canvas API: Para renderizado gráfico 2D de alta performance
+• Sistema de eventos táctiles: Para detección multitáctil
+
+
+================================================================================
+3. IMPLEMENTACIÓN DEL MODO UN JUGADOR
+================================================================================
+
+3.1 Arquitectura del Modo Individual
+-------------------------------------
+
+En el modo un jugador, el usuario controla la paleta inferior (roja) mientras 
+una inteligencia artificial controla la paleta superior (azul). La 
+implementación se realizó de manera que la experiencia sea desafiante pero 
+justa para el jugador.
+
+3.2 Inteligencia Artificial de la CPU
+--------------------------------------
+
+La IA implementada utiliza un sistema de estados para determinar su 
+comportamiento:
+
+MODO ATAQUE:
+Cuando la CPU posee el control del disco, evalúa la posición del jugador y 
+calcula un punto de impacto óptimo hacia la portería contraria. El algoritmo 
+toma en cuenta:
+
+• Posición actual del disco
+• Velocidad del disco
+• Distancia a la portería rival
+• Ángulo de aproximación
+
+Código de decisión de ataque:
+```
+if (discoY < alturaPantalla / 2 && abs(discoVelY) < 10) {
+    // Modo ataque: Apuntar hacia la portería del jugador
+    val objetivoX = paletaJ1X + Random.nextFloat() * 100 - 50
+    val objetivoY = alturaPantalla * 0.75f
+}
+```
+
+MODO DEFENSA:
+Cuando el disco se mueve hacia la portería de la CPU, esta se posiciona 
+defensivamente. El algoritmo calcula la trayectoria del disco y anticipa su 
+llegada:
+
+```
+else if (discoVelY < -5) {
+    // Modo defensa: Interceptar el disco
+    val objetivoX = discoX
+    val objetivoY = alturaPantalla * 0.15f
+}
+```
+
+MODO RETORNO:
+Si el disco está en la zona del jugador y sin amenaza inmediata, la CPU 
+retorna a una posición neutral frente a su portería:
+
+```
+else {
+    // Retornar a posición defensiva
+    val objetivoX = anchoPantalla / 2
+    val objetivoY = alturaPantalla * 0.15f
+}
+```
+
+3.3 Sistema Anti-Atascamiento
+------------------------------
+
+Se implementó un mecanismo para evitar que la CPU quede atrapada en las 
+esquinas de la cancha:
+
+```
+if (paletaJ2X < radioPaleta * 2) paletaJ2X = radioPaleta * 2
+if (paletaJ2X > anchoPantalla - radioPaleta * 2) {
+    paletaJ2X = anchoPantalla - radioPaleta * 2
+}
+```
+
+Este sistema garantiza que la paleta de la CPU siempre mantenga una distancia 
+mínima de las paredes, evitando situaciones donde el disco quede atascado en 
+esquinas.
+
+3.4 Calibración de Velocidad de la IA
+--------------------------------------
+
+La velocidad de la CPU se calibró para proporcionar un desafío equilibrado:
+
+• Velocidad de seguimiento: 0.15 del objetivo
+• Límite de velocidad horizontal: 8 unidades
+• Límite de velocidad vertical: 8 unidades
+
+Estos valores se determinaron mediante pruebas iterativas para lograr que la 
+CPU sea competitiva sin resultar imposible de vencer.
+
+
+================================================================================
+4. IMPLEMENTACIÓN DEL MODO DOS JUGADORES
+================================================================================
+
+4.1 Sistema Multitáctil
+------------------------
+
+El modo multijugador aprovecha las capacidades multitáctiles de los 
+dispositivos Android modernos. El sistema puede rastrear hasta 10 puntos de 
+contacto simultáneos, aunque el juego utiliza principalmente dos.
+
+4.2 Gestión de Punteros Táctiles
+---------------------------------
+
+Cada jugador controla su paleta mediante un dedo en su respectiva mitad de la 
+pantalla. La implementación distingue entre jugadores basándose en la posición 
+Y del toque:
+
+```
+when (event.actionMasked) {
+    MotionEvent.ACTION_DOWN, MotionEvent.ACTION_POINTER_DOWN -> {
+        val x = event.getX(indice)
+        val y = event.getY(indice)
+        val id = event.getPointerId(indice)
+        
+        if (y > alturaPantalla / 2) {
+            // Zona del Jugador 1 (inferior)
+            punteroJ1 = id
+            jugador1Listo = true
+        } else {
+            // Zona del Jugador 2 (superior)
+            punteroJ2 = id
+            jugador2Listo = true
+        }
+    }
+}
+```
+
+4.3 Sistema de Detección de Jugadores Listos
+---------------------------------------------
+
+Antes de iniciar el juego, ambos jugadores deben colocar sus dedos cerca de 
+sus respectivas porterías. Este mecanismo previene inicios accidentales y 
+asegura que ambos jugadores estén preparados:
+
+```
+if (jugador1Listo && jugador2Listo && !ambosListos) {
+    ambosListos = true
+    alAmbosJugadoresListos?.invoke()
+}
+```
+
+4.4 Restricción de Mitades de Cancha
+-------------------------------------
+
+Cada jugador solo puede mover su paleta en su mitad correspondiente de la 
+cancha. Esta restricción se implementa verificando constantemente la posición:
+
+```
+// Limitar movimiento del Jugador 1 a su mitad (inferior)
+if (paletaJ1Y < alturaPantalla / 2) {
+    paletaJ1Y = alturaPantalla / 2
+}
+
+// Limitar movimiento del Jugador 2 a su mitad (superior)
+if (paletaJ2Y > alturaPantalla / 2) {
+    paletaJ2Y = alturaPantalla / 2
+}
+```
+
+4.5 Sistema de Penalización
+----------------------------
+
+Se implementó un sistema de penalización con período de gracia para mejorar 
+la experiencia de usuario. Los jugadores tienen 2.5 segundos después de 
+levantar el dedo antes de que se aplique la penalización:
+
+```
+// Verificar tiempo sin tocar para Jugador 1
+if (punteroJ1 == -1 && tiempoSoltadoJ1 == 0L) {
+    tiempoSoltadoJ1 = System.currentTimeMillis()
+} else if (punteroJ1 == -1) {
+    val tiempoSinTocar = System.currentTimeMillis() - tiempoSoltadoJ1
+    if (tiempoSinTocar > tiempoGraciaPenalizacion) {
+        alPenalizacion?.invoke("Jugador 1")
+    }
+}
+```
+
+Este período de gracia permite a los jugadores pausar el juego sin ser 
+penalizados inmediatamente.
+
+
+================================================================================
+5. LÓGICA DEL JUEGO Y MECÁNICAS FUNDAMENTALES
+================================================================================
+
+5.1 Sistema de Física del Juego
+--------------------------------
+
+La física del juego se implementó utilizando un bucle de actualización 
+continuo que se ejecuta aproximadamente 60 veces por segundo (60 FPS).
+
+5.1.1 Movimiento del Disco
+
+El disco se mueve aplicando su velocidad a su posición en cada fotograma:
+
+```
+discoX += discoVelX
+discoY += discoVelY
+```
+
+5.1.2 Fricción
+
+Para simular la resistencia del aire y la superficie de juego, se aplica 
+fricción en cada actualización:
+
+```
+val friccion = 0.995f
+discoVelX *= friccion
+discoVelY *= friccion
+```
+
+Un coeficiente de fricción de 0.995 significa que el disco mantiene el 99.5% 
+de su velocidad en cada fotograma, desacelerándose gradualmente.
+
+5.1.3 Velocidad Mínima Garantizada
+
+Para evitar que el disco se detenga completamente y el juego se estanque, se 
+implementó una velocidad mínima:
+
+```
+val velocidadActual = sqrt(discoVelX * discoVelX + discoVelY * discoVelY)
+if (velocidadActual < velMinDisco && velocidadActual > 0.1f) {
+    val factor = velMinDisco / velocidadActual
+    discoVelX *= factor
+    discoVelY *= factor
+}
+```
+
+Si la velocidad cae por debajo del mínimo, se escala proporcionalmente para 
+mantener la dirección pero incrementar la magnitud.
+
+5.2 Sistema de Colisiones
+--------------------------
+
+5.2.1 Colisiones con Paredes
+
+Las colisiones con las paredes laterales se detectan comparando la posición 
+del disco con los límites de la pantalla:
+
+```
+// Colisión con pared izquierda
+if (discoX - radioDisco < 0) {
+    discoX = radioDisco
+    discoVelX = abs(discoVelX) * rebote
+}
+
+// Colisión con pared derecha
+if (discoX + radioDisco > anchoPantalla) {
+    discoX = anchoPantalla - radioDisco
+    discoVelX = -abs(discoVelX) * rebote
+}
+```
+
+El coeficiente de rebote de 0.95 significa que el disco conserva el 95% de su 
+energía tras el impacto, simulando un rebote casi elástico.
+
+5.2.2 Colisiones con Paletas
+
+La detección de colisión entre el disco y las paletas utiliza la fórmula de 
+distancia euclidiana:
+
+```
+val distancia = sqrt(
+    (discoX - paletaX) * (discoX - paletaX) + 
+    (discoY - paletaY) * (discoY - paletaY)
+)
+
+if (distancia < radioDisco + radioPaleta) {
+    // Colisión detectada
+}
+```
+
+Cuando se detecta una colisión, se calcula el ángulo de impacto y se aplica 
+la transferencia de momento:
+
+```
+// Ángulo de colisión
+val angulo = atan2(discoY - paletaY, discoX - paletaX)
+
+// Separar disco de la paleta
+discoX = paletaX + cos(angulo) * distanciaMinima
+discoY = paletaY + sin(angulo) * distanciaMinima
+
+// Aplicar impulso basado en movimiento de la paleta
+discoVelX = cos(angulo) * velocidadInicial + velPaletaX * 0.5f
+discoVelY = sin(angulo) * velocidadInicial + velPaletaY * 0.5f
+```
+
+El factor 0.5 en la transferencia de velocidad de la paleta simula que solo 
+parte del momento se transfiere al disco, creando una física más realista.
+
+5.3 Sistema de Detección de Goles
+----------------------------------
+
+Los goles se detectan verificando si el disco cruza completamente la línea de 
+portería:
+
+```
+// Gol en portería del Jugador 1 (inferior)
+if (discoY + radioDisco > alturaPantalla) {
+    if (discoX > porteria1X && discoX < porteria1X + anchoPorteria) {
+        alAnotarGol?.invoke(2) // Punto para Jugador 2
+    }
+}
+
+// Gol en portería del Jugador 2 (superior)
+if (discoY - radioDisco < 0) {
+    if (discoX > porteria2X && discoX < porteria2X + anchoPorteria) {
+        alAnotarGol?.invoke(1) // Punto para Jugador 1
+    }
+}
+```
+
+5.3.1 Prevención de Conteo Múltiple
+
+Para evitar que un solo gol se cuente múltiples veces (ya que el bucle se 
+ejecuta 60 veces por segundo), se implementó un sistema de bandera:
+
+```
+var golYaContado = false
+
+if (!golYaContado && discoEnPorteria) {
+    golYaContado = true
+    alAnotarGol?.invoke(jugador)
+    
+    // Reiniciar bandera después de 500ms
+    Handler(Looper.getMainLooper()).postDelayed({
+        golYaContado = false
+    }, 500)
+}
+```
+
+5.4 Sistema de Temporizador
+----------------------------
+
+El juego utiliza un temporizador de cuenta regresiva que puede configurarse 
+en JuegoActivity:
+
+```
+private var tiempoRestante = 120 // Duración en segundos
+```
+
+El temporizador se actualiza cada segundo utilizando un Handler:
+
+```
+if (System.currentTimeMillis() - ultimoTiempo >= 1000) {
+    tiempoRestante--
+    ultimoTiempo = System.currentTimeMillis()
+    actualizarTemporizador()
+}
+```
+
+Cuando el tiempo llega a cero, el juego termina automáticamente y se muestra 
+el ganador basándose en el puntaje.
+
+
+================================================================================
+6. IMPLEMENTACIÓN DEL CANVAS Y SISTEMA DE RENDERIZADO
+================================================================================
+
+6.1 Vista Personalizada (Custom View)
+--------------------------------------
+
+El juego se renderiza utilizando una clase personalizada que extiende la 
+clase View de Android:
+
+```
+class VistaJuego(context: Context, attrs: AttributeSet) : View(context, attrs)
+```
+
+Esta aproximación permite control total sobre el proceso de dibujado y 
+optimización del rendimiento gráfico.
+
+6.2 Método onDraw y Ciclo de Renderizado
+-----------------------------------------
+
+El método onDraw se invoca cada vez que la vista necesita redibujarse:
+
+```
+override fun onDraw(canvas: Canvas) {
+    super.onDraw(canvas)
+    
+    dibujarCancha(canvas)
+    dibujarPaletas(canvas)
+    dibujarDisco(canvas)
+    dibujarMarcadores(canvas)
+    
+    if (juegoIniciado && !juegoPausado) {
+        invalidate() // Solicitar redibujo inmediato
+    }
+}
+```
+
+La llamada a invalidate() al final crea un bucle de renderizado continuo, 
+logrando animación fluida.
+
+6.3 Objetos Paint para Renderizado Eficiente
+---------------------------------------------
+
+Se crearon objetos Paint reutilizables para mejorar el rendimiento:
+
+```
+// Paint para la cancha
+private val pintCancha = Paint().apply {
+    color = Color.parseColor("#1A2332")
+    style = Paint.Style.FILL
+}
+
+// Paint para el disco con sombra
+private val pintDisco = Paint().apply {
+    color = Color.parseColor("#FFFFFF")
+    style = Paint.Style.FILL
+    setShadowLayer(20f, 0f, 0f, Color.parseColor("#80FFFFFF"))
+}
+
+// Paint para las paletas
+private val pintPaletaJ1 = Paint().apply {
+    color = Color.parseColor("#FF4757")
+    style = Paint.Style.FILL
+    setShadowLayer(15f, 0f, 0f, Color.parseColor("#80FF4757"))
+}
+```
+
+La reutilización de objetos Paint evita la creación de nuevos objetos en cada 
+fotograma, reduciendo la carga del recolector de basura.
+
+6.4 Renderizado de la Cancha
+-----------------------------
+
+La cancha se dibuja en capas para crear profundidad visual:
+
+```
+private fun dibujarCancha(canvas: Canvas) {
+    // Fondo de la cancha
+    canvas.drawRect(0f, 0f, anchoPantalla, alturaPantalla, pintCancha)
+    
+    // Círculo central
+    canvas.drawCircle(
+        anchoPantalla / 2, 
+        alturaPantalla / 2, 
+        radioCirculoCentral, 
+        pintLineas
+    )
+    
+    // Línea central
+    canvas.drawLine(
+        0f, 
+        alturaPantalla / 2, 
+        anchoPantalla, 
+        alturaPantalla / 2, 
+        pintLineas
+    )
+    
+    // Porterías
+    canvas.drawRect(
+        porteria1X, 
+        alturaPantalla - 10, 
+        porteria1X + anchoPorteria, 
+        alturaPantalla, 
+        pintPorteria1
+    )
+}
+```
+
+6.5 Sistema de Efectos Visuales para Goles
+-------------------------------------------
+
+Cuando se anota un gol, se activa una animación compleja que incluye 
+múltiples efectos:
+
+```
+// Flash de pantalla
+val alphaFlash = ((300 - tiempoDesdeGol) * 255 / 300).coerceIn(0, 255)
+pintEfectoGol.alpha = alphaFlash
+canvas.drawRect(0f, 0f, anchoPantalla, alturaPantalla, pintEfectoGol)
+
+// Círculos expansivos
+val radio1 = tiempoDesdeGol * 2f
+val radio2 = (tiempoDesdeGol - 100).coerceAtLeast(0) * 2f
+canvas.drawCircle(puntoGolX, puntoGolY, radio1, pintCirculoGol)
+canvas.drawCircle(puntoGolX, puntoGolY, radio2, pintCirculoGol)
+
+// Partículas explosivas
+for (i in 0 until 12) {
+    val angulo = i * 30f * PI / 180f
+    val distancia = tiempoDesdeGol * 1.5f
+    val px = puntoGolX + cos(angulo) * distancia
+    val py = puntoGolY + sin(angulo) * distancia
+    canvas.drawCircle(px, py, 10f, pintParticula)
+}
+```
+
+6.6 Optimización de Rendimiento Gráfico
+----------------------------------------
+
+Para mantener 60 FPS constantes, se implementaron varias optimizaciones:
+
+1. Hardware Acceleration para sombras:
+```
+init {
+    setLayerType(LAYER_TYPE_SOFTWARE, null)
+}
+```
+
+2. Minimización de operaciones en onDraw:
+   - Cálculos pesados se realizan en actualizar()
+   - onDraw solo se encarga del dibujado
+
+3. Uso de valores primitivos (Float) en lugar de objetos (PointF) para 
+   reducir presión en el garbage collector
+
+
+================================================================================
+7. SISTEMA DE CONTROL Y ENTRADA DEL USUARIO
+================================================================================
+
+7.1 Procesamiento de Eventos Táctiles
+--------------------------------------
+
+El sistema de control se basa en el método onTouchEvent:
+
+```
+override fun onTouchEvent(event: MotionEvent): Boolean {
+    if (!juegoIniciado || juegoPausado) return true
+    
+    when (event.actionMasked) {
+        MotionEvent.ACTION_DOWN -> { /* Nuevo toque */ }
+        MotionEvent.ACTION_MOVE -> { /* Movimiento */ }
+        MotionEvent.ACTION_UP -> { /* Dedo levantado */ }
+        MotionEvent.ACTION_POINTER_DOWN -> { /* Toque adicional */ }
+        MotionEvent.ACTION_POINTER_UP -> { /* Dedo adicional levantado */ }
+    }
+    
+    return true
+}
+```
+
+7.2 Seguimiento de Velocidad de Paleta
+---------------------------------------
+
+Para transferir momento realista al disco, se rastrea la velocidad de 
+movimiento de las paletas:
+
+```
+// Calcular velocidad de la paleta
+velPaletaX = x - paletaJ1X
+velPaletaY = y - paletaJ1Y
+
+// Actualizar posición
+paletaJ1X = x
+paletaJ1Y = y
+```
+
+Esta velocidad se utiliza luego en el cálculo de colisiones para aplicar 
+impulso adicional al disco basándose en cuán rápido se movía la paleta al 
+momento del impacto.
+
+7.3 Sistema de Botones de Pausa Duales
+---------------------------------------
+
+Se implementaron dos botones de pausa, uno para cada jugador, ubicados en sus 
+respectivas esquinas:
+
+```
+// Botón Jugador 1 (esquina inferior derecha)
+btnPausarJ1.setOnClickListener {
+    if (juegoActivo && temporizadorIniciado) {
+        pausarJuego()
+    }
+}
+
+// Botón Jugador 2 (esquina superior derecha, rotado 180°)
+btnPausarJ2.setOnClickListener {
+    if (juegoActivo && temporizadorIniciado) {
+        pausarJuego()
+    }
+}
+```
+
+Esta implementación dual permite a cualquier jugador pausar sin necesidad de 
+cruzar la mitad de la cancha.
+
+
+================================================================================
+8. SISTEMA DE PUNTUACIÓN Y FINALIZACIÓN
+================================================================================
+
+8.1 Seguimiento de Puntos
+--------------------------
+
+Los puntos se rastrean en JuegoActivity mediante variables simples:
+
+```
+private var puntosJ1 = 0
+private var puntosJ2 = 0
+```
+
+Cada vez que se anota un gol, se actualiza la variable correspondiente:
+
+```
+vistaJuego.alAnotarGol = { jugador ->
+    if (jugador == 1) {
+        puntosJ1 += 1
+    } else {
+        puntosJ2 += 1
+    }
+    actualizarMarcador()
+}
+```
+
+8.2 Condiciones de Finalización
+--------------------------------
+
+El juego puede terminar de dos formas:
+
+1. Por tiempo agotado:
+```
+if (tiempoRestante <= 0) {
+    juegoActivo = false
+    terminarJuego()
+}
+```
+
+2. Por penalización:
+```
+vistaJuego.alPenalizacion = { jugador ->
+    mostrarPenalizacion(jugador)
+}
+```
+
+8.3 Determinación del Ganador
+------------------------------
+
+Al finalizar, se comparan los puntajes para determinar el resultado:
+
+```
+when {
+    puntosJ1 > puntosJ2 -> {
+        txtResultado.text = "¡${txtNombreJ1.text} GANA!"
+    }
+    puntosJ2 > puntosJ1 -> {
+        txtResultado.text = "¡${txtNombreJ2.text} GANA!"
+    }
+    else -> {
+        txtResultado.text = "¡EMPATE!"
+    }
+}
+```
+
+8.4 Sistema de Reinicio
+------------------------
+
+Se implementó funcionalidad de "Jugar de Nuevo" que reinicia todas las 
+variables sin recrear la Activity:
+
+```
+private fun reiniciarJuego() {
+    puntosJ1 = 0
+    puntosJ2 = 0
+    tiempoRestante = 120
+    contadorInicio = 3
+    juegoActivo = false
+    contandoInicio = false
+    temporizadorIniciado = false
+    
+    vistaJuego.reiniciar()
+    actualizarMarcador()
+}
+```
+
+
+================================================================================
+9. INTERFAZ DE USUARIO Y EXPERIENCIA
+================================================================================
+
+9.1 Diseño Visual Moderno
+--------------------------
+
+La interfaz utiliza Material Design 3 con un esquema de colores moderno:
+
+• Color primario: #2196F3 (Azul tecnológico)
+• Color secundario: #1976D2 (Azul oscuro)
+• Acentos: #FF4757 (Rojo vibrante) y #5352ED (Azul eléctrico)
+• Fondos: Gradientes oscuros para reducir fatiga visual
+
+9.2 Elementos de UI del Juego
+------------------------------
+
+Durante el juego se muestran múltiples elementos informativos:
+
+• Marcadores de puntuación: Ubicados cerca de cada portería
+• Temporizadores duales: Uno para cada jugador (rotado para el jugador 2)
+• Contador de inicio: Pantalla completa con efecto de sombra
+• Mensajes de estado: Visibles para ambos jugadores en sus orientaciones
+
+9.3 Sistema de Diálogos Personalizados
+---------------------------------------
+
+Se crearon diálogos personalizados para eventos importantes:
+
+```
+val dialogView = layoutInflater.inflate(R.layout.dialog_fin_juego, null)
+val builder = AlertDialog.Builder(this)
+    .setView(dialogView)
+    .setCancelable(false)
+
+val dialog = builder.create()
+dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+dialog.show()
+```
+
+Los diálogos tienen fondos personalizados y botones con acciones claras:
+• "Jugar de Nuevo": Reinicia el juego inmediatamente
+• "Menú Principal": Regresa a la pantalla de inicio
+
+
+================================================================================
+10. OPTIMIZACIONES Y RENDIMIENTO
+================================================================================
+
+10.1 Gestión del Game Loop
+---------------------------
+
+El bucle del juego utiliza un Handler para ejecutarse en el hilo principal:
+
+```
+private val actualizadorJuego = object : Runnable {
+    override fun run() {
+        if (juegoActivo && !vistaJuego.juegoPausado) {
+            vistaJuego.actualizar()
+            actualizarTemporizador()
+            handler.postDelayed(this, 16) // ~60 FPS
+        }
+    }
+}
+```
+
+El delay de 16ms resulta en aproximadamente 60 actualizaciones por segundo, 
+proporcionando animación fluida sin consumir recursos excesivos.
+
+10.2 Prevención de Memory Leaks
+--------------------------------
+
+Se implementaron medidas para prevenir fugas de memoria:
+
+```
+override fun onPause() {
+    super.onPause()
+    if (juegoActivo) {
+        pausarJuego()
+    }
+}
+
+override fun onDestroy() {
+    super.onDestroy()
+    handler.removeCallbacks(actualizadorJuego)
+}
+```
+
+10.3 Uso Eficiente de Recursos
+-------------------------------
+
+• Reutilización de objetos Paint
+• Minimización de allocaciones en bucles críticos
+• Uso de tipos primitivos en lugar de objetos cuando es posible
+• Cálculos intensivos realizados fuera del hilo de UI cuando sea posible
+
+
+================================================================================
+11. CARACTERÍSTICAS AVANZADAS IMPLEMENTADAS
+================================================================================
+
+11.1 Countdown de Inicio
+-------------------------
+
+Se implementó un sistema de cuenta regresiva visual (3, 2, 1, ¡YA!) que 
+aparece después de que ambos jugadores estén listos:
+
+```
+private fun iniciarContadorInicio() {
+    contandoInicio = true
+    txtContadorInicio.visibility = View.VISIBLE
+    
+    val handler = Handler(Looper.getMainLooper())
+    val runnable = object : Runnable {
+        override fun run() {
+            when (contadorInicio) {
+                3, 2, 1 -> {
+                    txtContadorInicio.text = contadorInicio.toString()
+                    contadorInicio--
+                    handler.postDelayed(this, 1000)
+                }
+                0 -> {
+                    txtContadorInicio.text = getString(R.string.ya)
+                    handler.postDelayed({ iniciarJuegoReal() }, 500)
+                }
+            }
+        }
+    }
+    handler.post(runnable)
+}
+```
+
+11.2 Sistema de Gracia para Pausas
+-----------------------------------
+
+El período de gracia de 2.5 segundos permite interactuar con botones sin 
+penalización inmediata:
+
+```
+private val tiempoGraciaPenalizacion = 2500L
+```
+
+11.3 Física de Impulso Inicial Aleatorio
+-----------------------------------------
+
+Al inicio de cada ronda, el disco recibe un impulso aleatorio:
+
+```
+val angulo = Random.nextFloat() * 2 * PI.toFloat()
+discoVelX = cos(angulo) * velocidadInicial
+discoVelY = sin(angulo) * velocidadInicial
+```
+
+Esto asegura que cada ronda comience de forma diferente e impredecible.
+
+11.4 Animaciones de Gol Espectaculares
+---------------------------------------
+
+Los goles se celebran con efectos visuales múltiples:
+• Flash de pantalla en color del equipo que anotó
+• Ondas expansivas desde el punto de gol
+• Partículas explosivas en 12 direcciones
+• Texto animado "¡GOL!" con efecto de rebote
+• Duración total: 1 segundo
+
+
+================================================================================
+12. CONFIGURACIÓN Y PERSONALIZACIÓN
+================================================================================
+
+12.1 Parámetros Configurables
+------------------------------
+
+Los siguientes parámetros pueden ajustarse fácilmente para modificar la 
+experiencia de juego:
+
+DURACIÓN DEL JUEGO:
+```
+private var tiempoRestante = 120 // En JuegoActivity.kt línea 34
+```
+
+FÍSICA DEL DISCO:
+```
+private val friccion = 0.995f          // Fricción del aire
+private val rebote = 0.95f             // Coeficiente de rebote
+private val velMaxDisco = 50f          // Velocidad máxima
+private val velMinDisco = 3f           // Velocidad mínima
+private val velocidadInicial = 20f     // Velocidad al inicio
+```
+
+TAMAÑO DE ELEMENTOS:
+```
+private val radioPaleta = anchoPantalla * 0.11f  // Tamaño de paletas
+private val radioDisco = anchoPantalla * 0.04f   // Tamaño del disco
+```
+
+INTELIGENCIA DE LA CPU:
+```
+private val velocidadCPU = 0.15f  // Rapidez de respuesta (0-1)
+```
+
+12.2 Colores Personalizables
+-----------------------------
+
+Todos los colores están definidos en el archivo colors.xml, permitiendo 
+personalización sencilla del tema visual.
+
+
+================================================================================
+13. CONCLUSIONES Y TRABAJO FUTURO
+================================================================================
+
+13.1 Logros del Proyecto
+-------------------------
+
+Se desarrolló exitosamente una aplicación completa de Air Hockey con las 
+siguientes características implementadas:
+
+✓ Física realista y fluida a 60 FPS
+✓ Inteligencia artificial desafiante pero justa
+✓ Soporte multijugador local completo
+✓ Controles intuitivos mediante gestos táctiles
+✓ Interfaz moderna con Material Design 3
+✓ Sistema de reglas completo con penalizaciones
+✓ Efectos visuales impactantes
+✓ Experiencia de usuario pulida
+
+13.2 Desafíos Superados
+------------------------
+
+Durante el desarrollo se enfrentaron y resolvieron varios desafíos técnicos:
+
+• Sincronización precisa del game loop
+• Detección confiable de colisiones a alta velocidad
+• Prevención de conteo múltiple de goles
+• Balance de la dificultad de la IA
+• Gestión eficiente de eventos multitáctiles
+• Optimización de rendimiento gráfico
+
+13.3 Posibles Mejoras Futuras
+------------------------------
+
+Aunque la aplicación está completa y funcional, existen oportunidades para 
+expansión futura:
+
+• Niveles de dificultad configurables para la IA
+• Efectos de sonido y música de fondo
+• Sistema de logros y estadísticas
+• Modo de torneo con múltiples rondas
+• Personalización de apariencia (temas, colores)
+• Multijugador en línea mediante red
+• Tabla de clasificación global
+• Diferentes tamaños de cancha
+• Power-ups y modos de juego alternativos
+
+13.4 Aprendizajes Técnicos
+---------------------------
+
+El proyecto permitió profundizar en varios aspectos del desarrollo Android:
+
+• Manejo avanzado de Canvas y renderizado 2D
+• Implementación de física de juegos
+• Algoritmos de inteligencia artificial
+• Optimización de rendimiento en aplicaciones gráficas intensivas
+• Gestión de estado compleja en Activities
+• Diseño de experiencia de usuario para juegos móviles
+
+
+================================================================================
+14. REFERENCIAS TÉCNICAS
+================================================================================
+
+• Android Developers Documentation - https://developer.android.com
+• Kotlin Programming Language - https://kotlinlang.org
+• Material Design 3 Guidelines - https://m3.material.io
+• Canvas and Drawables - Android Graphics API
+• MotionEvent Documentation - Multi-touch handling
+
+
+================================================================================
+FIN DEL REPORTE TÉCNICO
+================================================================================
+
+Este documento describe la implementación completa de la aplicación de Air 
+Hockey para Android. La aplicación demuestra competencia en desarrollo móvil, 
+implementación de física de juegos, diseño de interfaces modernas y 
+optimización de rendimiento.
+
+Desarrollado por: Juan Damián Ortega De Luna
+Fecha de completación: Octubre 2025
+Repositorio: https://github.com/DamiannOrtega/Hockey-de-Mesa
+
