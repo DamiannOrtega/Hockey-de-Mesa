@@ -266,7 +266,14 @@ class VistaJuego @JvmOverloads constructor(
             altoPantalla * 0.65f // Texto abajo si J2 anotó
         }
         
+        // Rotar el texto según el jugador que anotó
+        canvas.save()
+        if (jugadorQueAnoto == 2) {
+            // Si anotó Jugador 2 (de arriba), rotar 180° para que lo vea de su lado
+            canvas.rotate(180f, anchoPantalla / 2, textoPosY)
+        }
         canvas.drawText("¡GOL!", anchoPantalla / 2, textoPosY, pintTextoGol)
+        canvas.restore()
         
         // Líneas de velocidad
         for (i in 0..3) {
