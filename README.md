@@ -2,7 +2,7 @@
 
 ## 📱 Descripción
 
-Juego de Air Hockey multitáctil para Android desarrollado en Kotlin. El juego incluye modo un jugador (vs CPU) y multijugador local, con sistema de puntuaciones guardadas.
+Juego de Air Hockey multitáctil para Android desarrollado en Kotlin. El juego incluye modo un jugador (vs CPU) y multijugador local con física realista y controles táctiles intuitivos.
 
 ## 🎮 Características
 
@@ -17,43 +17,36 @@ Juego de Air Hockey multitáctil para Android desarrollado en Kotlin. El juego i
 - Sistema de penalizaciones:
   - Levantar el dedo durante el juego
   - Cruzar la mitad de la cancha
-- Duración de 3 minutos por partida
+- Duración de 2 minutos por partida
 - Sistema de goles con detección automática
-
-### Sistema de Puntuaciones
-- Guardar puntuaciones al finalizar cada partida
-- Top 10 mejores puntuaciones
-- Persistencia de datos con SharedPreferences
-- Visualización ordenada por puntos
-- Diferenciación entre modos de juego
+- Efectos visuales espectaculares al anotar
+- Contador de inicio (3, 2, 1, ¡YA!)
+- Diálogos modernos para finalización
 
 ## 🏗️ Estructura del Proyecto
 
 ```
 app/src/main/
 ├── java/com/example/examenhockey/
-│   ├── MenuPrincipalActivity.kt     # Menú principal
+│   ├── MenuPrincipalActivity.kt     # Menú principal con logo
 │   ├── JuegoActivity.kt             # Lógica del juego y temporizador
-│   ├── PuntuacionesActivity.kt      # Visualización de puntuaciones
-│   ├── VistaJuego.kt                # Vista personalizada con física
-│   ├── Puntuacion.kt                # Modelo de datos
-│   └── GestorPuntuaciones.kt        # Persistencia de datos
+│   └── VistaJuego.kt                # Vista personalizada con física e IA
 │
 ├── res/
 │   ├── layout/
 │   │   ├── activity_menu_principal.xml
 │   │   ├── activity_juego.xml
-│   │   ├── activity_puntuaciones.xml
-│   │   └── item_puntuacion.xml
+│   │   ├── dialog_fin_juego.xml      # Diálogo de finalización
+│   │   └── dialog_penalizacion.xml   # Diálogo de penalización
 │   │
 │   ├── drawable/
-│   │   ├── fondo_gradiente.xml      # Fondo degradado
-│   │   └── circulo_posicion.xml     # Indicador de posición
+│   │   ├── fondo_gradiente.xml       # Fondo degradado
+│   │   └── logo.png                  # Logo de la aplicación
 │   │
 │   └── values/
-│       ├── colors.xml               # Paleta de colores
-│       ├── strings.xml              # Textos del juego
-│       └── themes.xml               # Temas de la app
+│       ├── colors.xml                # Paleta de colores moderna
+│       ├── strings.xml               # Textos del juego
+│       └── themes.xml                # Material Design 3
 ```
 
 ## 🎯 Reglas del Juego
@@ -61,23 +54,25 @@ app/src/main/
 1. El objetivo es anotar la mayor cantidad de goles en la portería del rival
 2. Cada jugador controla una paleta tocando su mitad de la pantalla
 3. El juego no inicia hasta que ambos jugadores coloquen su dedo cerca de su portería
-4. Restricciones:
+4. Un contador de 3 segundos (3, 2, 1, ¡YA!) precede al inicio del juego
+5. Restricciones:
    - No se puede cruzar la línea central
-   - No se puede levantar el dedo durante el juego
-5. El juego termina:
-   - Por tiempo (3 minutos)
+   - Levantar el dedo por más de 2.5 segundos resulta en penalización
+6. El juego termina:
+   - Por tiempo (2 minutos)
    - Por penalización de un jugador
-6. Gana quien tenga más puntos al finalizar
+7. Gana quien tenga más puntos al finalizar
+8. Cada gol vale exactamente 1 punto
 
 ## 🛠️ Tecnologías Utilizadas
 
 - **Lenguaje**: Kotlin
 - **SDK mínimo**: Android 10 (API 29)
-- **SDK objetivo**: Android 14 (API 34)
+- **SDK compilación**: Android 14 (API 36)
 - **Librerías**:
   - AndroidX Core KTX
-  - Material Design Components
-  - Gson (para serialización de datos)
+  - Material Design 3 Components
+  - AndroidX CardView
 
 ## 🎨 Diseño
 
@@ -97,35 +92,40 @@ app/src/main/
 ## 📝 Comentarios en el Código
 
 El código está comentado en español en las secciones importantes para facilitar su comprensión:
-- Lógica de física del juego
-- Detección de colisiones
-- Sistema de penalizaciones
-- Gestión de puntuaciones
+- Lógica de física del juego con fricción y rebotes
+- Detección de colisiones entre disco y paletas
+- Sistema de penalizaciones con período de gracia
+- Algoritmos de inteligencia artificial
+- Efectos visuales y animaciones
 
 ## 🎓 Características Técnicas Destacadas
 
-### VistaJuego.kt
-- Custom View con renderizado manual usando Canvas
-- Sistema de física con velocidad, fricción y rebotes
+### VistaJuego.kt (742 líneas)
+- Custom View con renderizado manual usando Canvas a 60 FPS
+- Sistema de física avanzado con velocidad, fricción y rebotes
 - Detección multi-touch para 2 jugadores simultáneos
-- IA simple para modo un jugador
+- IA inteligente con modos ataque/defensa/retorno
+- Sistema anti-atascamiento para la CPU
+- Efectos visuales de gol con animaciones múltiples
 - Callbacks para eventos del juego
+- Partículas explosivas y ondas expansivas
+- Sombras y efectos de brillo para elementos
 
-### JuegoActivity.kt
-- Temporizador con Handler y Runnable
-- Actualización del juego a ~60 FPS
+### JuegoActivity.kt (464 líneas)
+- Temporizador dual visible para ambos jugadores
+- Contador de inicio de 3 segundos
+- Actualización del juego a 60 FPS constantes
 - Gestión de estados (pausado, activo, terminado)
-- Diálogos para interacción con el usuario
-
-### GestorPuntuaciones.kt
-- Persistencia con SharedPreferences
-- Serialización JSON con Gson
-- Top 10 puntuaciones ordenadas
-- Manejo de errores
+- Diálogos personalizados con layouts modernos
+- Período de gracia de 2.5 segundos para penalizaciones
+- Sistema de reinicio sin recrear Activity
+- Botones de pausa duales (uno por jugador)
 
 ## 👨‍💻 Autor
 
-Proyecto desarrollado como examen de programación Android.
+**Juan Damián Ortega De Luna**
+
+Proyecto desarrollado como examen de programación Android con Kotlin.
 
 ## 📄 Licencia
 
