@@ -122,7 +122,7 @@ class VistaJuego @JvmOverloads constructor(
         
         // Calcular dimensiones
         radioPorteria = anchoPantalla * 0.2f
-        radioPaleta = anchoPantalla * 0.11f // Aumentado de 0.08 a 0.11 (37% más grande)
+        radioPaleta = anchoPantalla * 0.09f
         radioDisco = anchoPantalla * 0.04f
         
         // Posiciones iniciales
